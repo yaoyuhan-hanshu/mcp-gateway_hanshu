@@ -805,51 +805,107 @@ def _normalize_memory_content(content: str, category: str = "") -> tuple[bool, s
 async def memory_status():
     """【橘瓣记忆库状态】检查 Supabase、精华记忆、对话归档、人设表状态。"""
     if not supabase:
-        return "❌ Supabase 未连接：请检查 SUPABASE_URL / SUPABASE_KEY。"
+        return "❌ Supabase 未连接：请检查 SUPABASE_URL / SUPABASE_KEY"
 
     def _run():
         out = {}
-        out["chat_messages_latest"] = supabase.table("chat_messages").select("created_at").order("created_at", desc=True).limit(1).execute().data
-        out["chat_archive_latest"] = supabase.table("chat_archive").select("created_at").order("created_at", desc=True).limit(1).execute().data
-        out["personas"] = supabase.table("personas").select("persona_name,display_name,enabled,sort_order,plugin_id").order("sort_order").limit(200).execute().data
-        out["persona_map"] = supabase.table("persona_map").select("plugin_id,persona_name").limit(200).execute().data
-        msg_rows = supabase.table("chat_messages").select("assistant_id").limit(2000).execute().data
-        arc_rows = supabase.table("chat_archive").select("assistant_id").limit(2000).execute().data
-        return out, msg_rows, arc_rows
 
-    out, msg_rows, arc_rows = await asyncio.to_thread(_run)
+        out["chat_messages_latest"] = (
+            supabase.table("chat_messages")
+            .select("created_at,assistant_id")
+            .order("created_at", desc=True)
+            .limit(1)
+            .execute()
+            .data
+        )
 
-    def count_by(rows):
+        out["chat_archive_latest"] = (
+            supabase.table("chat_archive")
+            .select("created_at,assistant_id")
+            .order("created_at", desc=True)
+            .limit(1)
+            .execute()
+            .data
+        )
+
+        out["personas"] = (
+            supabase.table("personas")
+            .select("persona_name,display_name,enabled,sort_order")
+            .eq("enabled", True)
+            .order("sort_order")
+            .limit(200)
+            .execute()
+            .data
+        )
+
+        out["msg_rows"] = (
+            supabase.table("chat_messages")
+            .select("assistant_id")
+            .limit(1000)
+            .execute()
+            .data
+        )
+
+        out["arc_rows"] = (
+            supabase.table("chat_archive")
+            .select("assistant_id")
+            .limit(1000)
+            .execute()
+            .data
+        )
+
+        return out
+
+    out = await asyncio.to_thread(_run)
+
+    def _count(rows):
         d = {}
         for r in rows or []:
             k = r.get("assistant_id") or "(空)"
+            if _is_hidden_persona_name(k):
+                continue
             d[k] = d.get(k, 0) + 1
         return sorted(d.items(), key=lambda x: -x[1])[:20]
 
-    lines = ["✅ Supabase 已连接", ""]
     latest_msg = out.get("chat_messages_latest") or []
     latest_arc = out.get("chat_archive_latest") or []
-    lines.append(f"精华记忆 chat_messages 最新时间：{latest_msg[0].get('created_at') if latest_msg else '暂无'}")
-    lines.append(f"对话归档 chat_archive 最新时间：{latest_arc[0].get('created_at') if latest_arc else '暂无'}")
+    personas = out.get("personas") or []
+
+    lines = []
+    lines.append("✅ Supabase 已连接")
     lines.append("")
-    lines.append("【启用人")    [ poutperson or p") __hidden_person_name(p.get("persona_name"))]
+
+    if latest_msg:
+        lines.append("精华记忆最新时间: " + str(latest_msg[0].get("created_at")))
+    else:
+        lines.append("精华记忆最新时间: 暂无")
+
+    if latest_arc:
+        lines.append("对话归档最新时间: " + str(latest_arc[0].get("created_at")))
+    else:
+        lines.append("对话归档最新时间: 暂无")
+
+    lines.append("")
+    lines.append("【启用人设】")
     if personas:
         for p in personas[:50]:
-            lines.append(f"- {p.get('persona_name')}（{p.get('display_name') or p.get('persona_name')}）")
+            name = p.get("persona_name") or ""
+            display = p.get("display_name") or name
+            lines.append("- " + name + " (" + display + ")")
     else:
         lines.append("- 暂无启用人设")
+
     lines.append("")
     lines.append("【精华记忆数量 Top】")
-    for k, v in count_by(msg_rows):
-        if not _is_hidden_persona_name(k):
-            lines.append(f"- {k}: {v}")
+    for k, v in _count(out.get("msg_rows")):
+        lines.append("- " + str(k) + ": " + str(v))
+
     lines.append("")
     lines.append("【对话归档数量 Top】")
-    for k, v in count_by(arc_rows):
-        if not _is_hidden_persona_name(k):
-            lines.append(f"- {k}: {v}")
-    return "\n".join(lines)
+    for k, v in _count(out.get("arc_rows")):
+        lines.append("- " + str(k) + ": " + str(v))
 
+    return "\n".join(lines)
 
 @mcp.tool()
 @mcp_error_handler
