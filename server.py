@@ -763,6 +763,240 @@ async def web_search(query: str, max_results: int = 5):
 
 
 # ==========================================
+# OrangeChat / 橘瓣 Supabase 记忆库工具补丁
+# 粘贴位置：server.py 中“# 4. 启动入口”这一段的上方
+# ==========================================
+
+_ALLOWED_MEMORY_TAGS = ["喜好", "雷点", "设定", "关系", "剧情", "档案"]
+
+
+def _is_uuid_like(value: str) -> bool:
+    value = str(value or "").strip()
+    return bool(re.match(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", value))
+
+
+def _is_hidden_persona_name(name: str) -> bool:
+    s = str(name or "").strip().lower()
+    if not s:
+        return True
+    if _is_uuid_like(s):
+        return True
+    blocked = ["diagnose", "test", "debug", "manual", "unknown", "未映射"]
+    return any(x in s for x in blocked)
+
+
+def _normalize_memory_content(content: str, category: str = "") -> tuple[bool, str, str]:
+    """返回 (ok, normalized_content, error)。精华记忆必须以 [标签] 开头。"""
+    content = str(content or "").strip()
+    category = str(category or "").strip()
+    if not content:
+        return False, "", "内容为空"
+    if re.match(r"^\[[^\]]+\]", content):
+        return True, content, ""
+    if category:
+        clean_cat = category.replace("[", "").replace("]", "").strip()
+        if clean_cat.startswith("档案") or clean_cat in _ALLOWED_MEMORY_TAGS:
+            return True, f"[{clean_cat}] {content}", ""
+    return False, "", "精华记忆 content 必须以 [喜好]/[雷点]/[设定]/[关系]/[剧情]/[档案-X] 开头"
+
+
+@mcp.tool()
+@mcp_error_handler
+async def memory_status():
+    """【橘瓣记忆库状态】检查 Supabase、精华记忆、对话归档、人设表状态。"""
+    if not supabase:
+        return "❌ Supabase 未连接：请检查 SUPABASE_URL / SUPABASE_KEY。"
+
+    def _run():
+        out = {}
+        out["chat_messages_latest"] = supabase.table("chat_messages").select("created_at").order("created_at", desc=True).limit(1).execute().data
+        out["chat_archive_latest"] = supabase.table("chat_archive").select("created_at").order("created_at", desc=True).limit(1).execute().data
+        out["personas"] = supabase.table("personas").select("persona_name,display_name,enabled,sort_order,plugin_id").order("sort_order").limit(200).execute().data
+        out["persona_map"] = supabase.table("persona_map").select("plugin_id,persona_name").limit(200).execute().data
+        msg_rows = supabase.table("chat_messages").select("assistant_id").limit(2000).execute().data
+        arc_rows = supabase.table("chat_archive").select("assistant_id").limit(2000).execute().data
+        return out, msg_rows, arc_rows
+
+    out, msg_rows, arc_rows = await asyncio.to_thread(_run)
+
+    def count_by(rows):
+        d = {}
+        for r in rows or []:
+            k = r.get("assistant_id") or "(空)"
+            d[k] = d.get(k, 0) + 1
+        return sorted(d.items(), key=lambda x: -x[1])[:20]
+
+    lines = ["✅ Supabase 已连接", ""]
+    latest_msg = out.get("chat_messages_latest") or []
+    latest_arc = out.get("chat_archive_latest") or []
+    lines.append(f"精华记忆 chat_messages 最新时间：{latest_msg[0].get('created_at') if latest_msg else '暂无'}")
+    lines.append(f"对话归档 chat_archive 最新时间：{latest_arc[0].get('created_at') if latest_arc else '暂无'}")
+    lines.append("")
+    lines.append("【启用人")    [ poutperson or p") __hidden_person_name(p.get("persona_name"))]
+    if personas:
+        for p in personas[:50]:
+            lines.append(f"- {p.get('persona_name')}（{p.get('display_name') or p.get('persona_name')}）")
+    else:
+        lines.append("- 暂无启用人设")
+    lines.append("")
+    lines.append("【精华记忆数量 Top】")
+    for k, v in count_by(msg_rows):
+        if not _is_hidden_persona_name(k):
+            lines.append(f"- {k}: {v}")
+    lines.append("")
+    lines.append("【对话归档数量 Top】")
+    for k, v in count_by(arc_rows):
+        if not _is_hidden_persona_name(k):
+            lines.append(f"- {k}: {v}")
+    return "\n".join(lines)
+
+
+@mcp.tool()
+@mcp_error_handler
+async def persona_list(include_disabled: bool = False):
+    """【人设列表】只返回可用人设名，默认隐藏 UUID、diagnose、test。"""
+    if not supabase:
+        return "❌ Supabase 未连接"
+
+    def _fetch():
+        q = supabase.table("personas").select("persona_name,display_name,enabled,sort_order,plugin_id").order("sort_order")
+        if not include_disabled:
+            q = q.eq("enabled", True)
+        return q.limit(300).execute().data
+
+    rows = await asyncio.to_thread(_fetch)
+    rows = [r for r in (rows or []) if not _is_hidden_persona_name(r.get("persona_name"))]
+    if not rows:
+        return "📭 暂无可用人设。"
+    return "🎭 【可用人设】\n" + "\n".join([f"- {r.get('persona_name')}" + (f"（{r.get('display_name')}）" if r.get('display_name') else "") for r in rows])
+
+
+@mcp.tool()
+@mcp_error_handler
+async def persona_register(persona_name: str, display_name: str = "", plugin_id: str = "", sort_order: int = 100):
+    """【注册人设】新增/启用人设；如提供旧 UUID/plugin_id，则同步迁移 chat_messages/chat_archive。"""
+    if not supabase:
+        return "❌ Supabase 未连接"
+    persona_name = str(persona_name or "").strip()
+    display_name = str(display_name or persona_name).strip()
+    plugin_id = str(plugin_id or "").strip()
+    if not persona_name:
+        return "❌ persona_name 不能为空"
+    if _is_hidden_persona_name(persona_name):
+        return "❌ persona_name 看起来像 UUID/test/diagnose，不建议注册为可用人设"
+
+    def _run():
+        supabase.table("personas").upsert({
+            "persona_name": persona_name,
+            "display_name": display_name,
+            "plugin_id": plugin_id or None,
+            "enabled": True,
+            "sort_order": sort_order,
+        }, on_conflict="persona_name").execute()
+        migrated_msg = migrated_arc = 0
+        if plugin_id:
+            supabase.table("persona_map").upsert({"plugin_id": plugin_id, "persona_name": persona_name}, on_conflict="plugin_id").execute()
+            r1 = supabase.table("chat_messages").update({"assistant_id": persona_name}).eq("assistant_id", plugin_id).execute()
+            r2 = supabase.table("chat_archive").update({"assistant_id": persona_name}).eq("assistant_id", plugin_id).execute()
+            migrated_msg = len(r1.data or []) if hasattr(r1, "data") else 0
+            migrated_arc = len(r2.data or []) if hasattr(r2, "data") else 0
+        return migrated_msg, migrated_arc
+
+    migrated_msg, migrated_arc = await asyncio.to_thread(_run)
+    extra = f"；已迁移旧ID数据：精华{migrated_msg}条，归档{migrated_arc}条" if plugin_id else ""
+    return f"✅ 人设已注册/启用：{persona_name}{extra}"
+
+
+@mcp.tool()
+@mcp_error_handler
+async def memory_search(persona_name: str, query: str, limit: int = 10):
+    """【搜索精华记忆】按人设名搜索 chat_messages，不搜索对话归档。"""
+    if not supabase:
+        return "❌ Supabase 未连接"
+    persona_name = str(persona_name or "").strip()
+    query = str(query or "").strip()
+    limit = max(1, min(int(limit or 10), 50))
+    if not persona_name:
+        return "❌ 请提供 persona_name，例如：骆云影_联姻线"
+    if not query:
+        return "❌ 请提供 query"
+
+    def _search():
+        return supabase.table("chat_messages").select("id,assistant_id,conversation_id,role,content,category,created_at").eq("assistant_id", persona_name).ilike("content", f"%{query}%").order("created_at", desc=True).limit(limit).execute().data
+
+    rows = await asyncio.to_thread(_search)
+    if not rows:
+        return f"🧠 未在【{persona_name}】的精华记忆里搜到：{query}"
+    lines = [f"🧠 【{persona_name}】精华记忆搜索：{query}"]
+    for r in rows:
+        lines.append(f"- {str(r.get('created_at',''))[:16]} | {r.get('content','')}")
+    return "\n".join(lines)
+
+
+@mcp.tool()
+@mcp_error_handler
+async def memory_write(content: str, persona_name: str, conversation_id: str = "manual", category: str = ""):
+    """【写入精华记忆】写入 chat_messages。content 必须以 [标签] 开头。"""
+    if not supabase:
+        return "❌ Supabase 未连接"
+    persona_name = str(persona_name or "").strip()
+    if not persona_name:
+        return "❌ 请提供 persona_name，例如：骆云影_联姻线"
+    ok, normalized, err = _normalize_memory_content(content, category)
+    if not ok:
+        return f"❌ {err}"
+
+    tag = ""
+    m = re.match(r"^\[([^\]]+)\]", normalized)
+    if m:
+        tag = m.group(1)
+    cat = category or tag or "记忆"
+
+    def _insert():
+        return supabase.table("chat_messages").insert({
+            "assistant_id": persona_name,
+            "conversation_id": conversation_id or "manual",
+            "role": "system",
+            "content": normalized,
+            "category": cat,
+        }).execute().data
+
+    data = await asyncio.to_thread(_insert)
+    mid = data[0].get("id") if data else ""
+    return f"✅ 精华记忆已写入：{persona_name} | {normalized}" + (f" | id={mid}" if mid else "")
+
+
+@mcp.tool()
+@mcp_error_handler
+async def archive_write(content: str, role: str, persona_name: str, conversation_id: str = "manual", category: str = ""):
+    """【写入对话归档】写入 chat_archive。assistant_id 统一使用人设名，不写 UUID。"""
+    if not supabase:
+        return "❌ Supabase 未连接"
+    persona_name = str(persona_name or "").strip()
+    content = str(content or "").strip()
+    role = str(role or "").strip().lower()
+    if not persona_name:
+        return "❌ 请提供 persona_name，例如：骆云影_联姻线"
+    if role not in ["user", "assistant", "system"]:
+        return "❌ role 只能是 user / assistant / system"
+    if not content:
+        return "❌ content 不能为空"
+
+    def _insert():
+        return supabase.table("chat_archive").insert({
+            "assistant_id": persona_name,
+            "conversation_id": conversation_id or "manual",
+            "role": role,
+            "content": content,
+            "category": category or "archive",
+        }).execute().data
+
+    data = await asyncio.to_thread(_insert)
+    aid = data[0].get("id") if data else ""
+    return f"✅ 对话归档已写入：{persona_name} | {role}" + (f" | id={aid}" if aid else "")
+
+
+# ==========================================
 # 邮件 & 日历集成 (通用 Gmail API 版)
 # ==========================================
 
