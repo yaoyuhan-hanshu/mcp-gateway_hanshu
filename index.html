@@ -1,86 +1,99 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>记忆管理面板 v9</title>
-<style>
-:root{--p:#7c6fb0;--p2:#675a9d;--bg:#f6f5fa;--card:#fff;--text:#24222a;--muted:#7b7785;--line:#e6e1f2;--danger:#d9534f;--ok:#2f9e68;--gray:#888}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",Arial,sans-serif;padding-bottom:96px}.top{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,var(--p),#9b8ad6);color:white;padding:14px 16px;box-shadow:0 2px 10px rgba(0,0,0,.12)}.top b{font-size:18px}.top .sub{font-size:12px;opacity:.9;margin-top:3px}.card{background:var(--card);margin:10px;padding:12px;border-radius:14px;box-shadow:0 1px 6px rgba(48,38,80,.06)}label{display:block;font-size:12px;color:var(--muted);margin:8px 0 3px}input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--text);font-size:14px;outline:none}textarea{min-height:82px;resize:vertical}button{border:0;border-radius:10px;padding:9px 12px;background:var(--p);color:white;font-size:14px;margin:4px 4px 4px 0}button:disabled{opacity:.45}.gray{background:var(--gray)}.danger{background:var(--danger)}.ok{background:var(--ok)}.small{font-size:12px;padding:6px 9px}.muted{color:var(--muted);font-size:12px;line-height:1.45}.err{color:var(--danger)}.row{display:flex;gap:8px}.row>*{flex:1}.tab{display:flex;gap:8px}.tab button{flex:1;background:#ddd;color:#333}.tab button.on{background:var(--p);color:white}.hide{display:none!important}.item{background:white;margin:8px 10px;padding:11px;border-radius:12px;border-left:4px solid var(--p);box-shadow:0 1px 5px rgba(48,38,80,.05)}.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}.pill{display:inline-block;background:#efeafd;color:#554891;border-radius:999px;padding:3px 8px;font-size:12px;max-width:100%;word-break:break-all}.pill2{background:#eef7f1;color:#27734d}.content{white-space:pre-wrap;word-break:break-word;line-height:1.5;font-size:14px}.time{font-size:12px;color:#999;margin-top:6px}.pager{position:fixed;left:0;right:0;bottom:0;background:white;border-top:1px solid var(--line);padding:8px 10px;z-index:20;box-shadow:0 -2px 10px rgba(0,0,0,.05)}.pager-inner{display:flex;gap:6px;align-items:center;justify-content:center}.pager input{width:68px;text-align:center;padding:8px}.loading{text-align:center;color:#999;padding:20px}.fullbox{position:fixed;left:5%;right:5%;top:8%;bottom:8%;background:white;border-radius:14px;box-shadow:0 0 0 9999px rgba(0,0,0,.45);z-index:50;padding:12px;display:none;overflow:auto}.fullbox .x{position:sticky;top:0;width:100%;background:var(--p);margin:0 0 10px}.fulltext{white-space:pre-wrap;word-break:break-word;line-height:1.55}.hint{background:#fbf8e8;border:1px solid #eee0a8;color:#66551b;border-radius:10px;padding:8px;margin-top:6px;font-size:12px;line-height:1.45}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}@media(max-width:520px){.grid2{grid-template-columns:1fr}.pager-inner{flex-wrap:wrap}.top b{font-size:16px}}
-</style>
+  <meta charset="utf-8" />
+  <meta="="-width />
+  <title>记忆管理面板 v9.1</title>
+  <style>
+    :root{--bg:#f6f3fb;--card:#fff;--pri:#8f7bd6;--pri2:#6f59bd;--ok:#22a06b;--bad:#d64545;--text:#2d2638;--muted:#756b82;--line:#e5dff0}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:16px;line-height:1.5}
+    header{background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;padding:22px 16px} header h1{margin:0 0 6px;font-size:25px} header p{margin:0;opacity:.95}
+    main{max-width:1080px;margin:0 auto;padding:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;margin:12px 0;box-shadow:0 8px 24px rgba(60,40,100,.08)}
+    label{display:block;color:var(--muted);font-size:14px;margin:8px 0 5px} input,select,textarea,button{width:100%;font:inherit;border-radius:14px;border:1px solid #ddd5ea;background:#fff;color:var(--text);padding:11px 12px} textarea{min-height:110px;resize:vertical}.row{display:grid;grid-template-columns:1fr;gap:10px}.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}@media(max-width:720px){.row2,.row3{grid-template-columns:1fr}}
+    button{cursor:pointer;border:0;background:var(--pri2);color:#fff;font-weight:700}.btn-ok{background:var(--ok)}.btn-gray{background:#858585}.btn-red{background:var(--bad)}.btn-light{background:#eee8f8;color:var(--pri2)}.btns{display:flex;gap:8px;flex-wrap:wrap}.btns button{width:auto;min-width:86px;padding:9px 12px}
+    .tabs{display:flex;gap:8px;margin:12px 0}.tab{flex:1;background:#e9e1f6;color:var(--pri2)}.tab.active{background:var(--pri2);color:#fff}.hint{background:#fff9dd;border:1px solid #eadf9c;color:#675a1e;border-radius:14px;padding:10px;margin-top:10px}.status{white-space:pre-wrap;color:var(--muted);font-size:14px;margin-top:8px}
+    table{width:100%;border-collapse:collapse;margin-top:12px;background:#fff;border-radius:14px;overflow:hidden}th,td{border-bottom:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}th{background:#f0eafd;color:#55447b}.content-cell{max-width:520px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.small{font-size:13px;color:var(--muted)}.pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#eee8f8;color:#6f59bd;font-size:12px}.pager{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}.pager button{width:auto}.pager input{width:90px}.modal{position:fixed;inset:0;background:rgba(0,0,0,.38);display:none;align-items:center;justify-content:center;padding:14px;z-index:20}.modal.show{display:flex}.modal-box{background:#fff;max-width:760px;width:100%;max-height:86vh;overflow:auto;border-radius:18px;padding:16px}.modal pre{white-space:pre-wrap;word-break:break-word;background:#f8f6fc;border-radius:12px;padding:12px}.topline{display:flex;justify-content:space-between;gap:10px;align-items:center}.danger-text{color:var(--bad)}
+  </style>
 </head>
 <body>
-<div class="top"><b>记忆管理面板 v9</b><div class="sub">适配 chat_messages / chat_archive / personas；按人设隔离，默认会话互通</div></div>
+<header><h1>记忆管理面板 v9.1</h1><p>适配 chat_messages / chat_archive / personas；按人设隔离，会话互通。</p></header>
+<main>
+  <section class="card">
+    <div class="row2">
+      <div><label>Supabase 项目 URL</label><input id="sbUrl" placeholder="https://xxxx.supabase.co"></div>
+      <div><label>Supabase anon / publishable key</label><input id="sbKey" placeholder="sb_publishable_xxx 或 anon key"></div>
+    </div>
+    <div class="row2" style="margin-top:10px"><button class="btn-ok" id="connectBtn">保存并连接</button><button class="btn-gray" id="clearBtn">清空本地配置</button></div>
+    <div class="hint">当前为前端直连 Supabase REST。下一步必须配套 RLS policy；不要把页面和 key 发给陌生人。</div>
+    <div id="status" class="status">未连接。</div>
+  </section>
 
-<div class="card">
-  <b>连接配置</b>
-  <label>Supabase 项目 URL</label>
-  <input id="url" placeholder="https://xxxxx.supabase.co">
-  <label>Supabase anon / publishable key</label>
-  <input id="key" placeholder="sb_publishable_... 或 eyJ...">
-  <div class="row"><button id="save" class="ok">保存并连接</button><button id="clearCfg" class="gray">清空本地配置</button></div>
-  <div id="msg" class="muted"></div>
-  <div class="hint">当前版本为前端直连 Supabase REST。RLS 安全策略需要后续配套开启；不要把页面和 key 发给陌生人。</div>
-</div>
+  <section class="card">
+    <div class="tabs"><button id="tabMem" class="tab active">精华记忆</button><button id="tabArc" class="tab">对话归档</button></div>
+    <div class="row3">
+      <div><label>人设</label><select id="personaSelect"></select></div>
+      <div id="catWrap"><label>分类</label><select id="catSelect"><option value="">全部分类</option><option>喜好</option><option>雷点</option><option>设定</option><option>关系</option><option>剧情</option><option>档案</option></select></div>
+      <div id="roleWrap" style="display:none"><label>角色</label><select id="roleSelect"><option value="">全部角色</option><option>user</option><option>assistant</option><option>system</option></select></div>
+    </div>
+    <div class="row3">
+      <div><label>关键词</label><input id="keyword" placeholder="搜索内容关键词，可留空"></div>
+      <div><label>每页条数</label><select id="pageSize"></select></div>
+      <div><label>页码跳转</label><input id="jumpPage" type="number" min="1" value="1"></div>
+    </div>
+    <div class="btns" style="margin-top:10px"><button id="queryBtn">查询</button><button class="btn-light" id="prevBtn">上一页</button><button class="btn-light" id="nextBtn">下一页</button><button class="btn-light" id="jumpBtn">跳转</button></div>
+    <div id="pageInfo" class="status">第 0 / 0 页，共 0 条</div>
+    <div style="overflow:auto"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
+  </section>
 
-<div <tab忆">    ="人 <="catBox"><label>分类</label><select id="cat"><option value="">全部分类</option><option>喜好</option><option>雷点</option><option>设定</option><option>关系</option><option>剧情</option><option>档案</option></select></div>
-    <div id="roleBox" class="hide"><label>角色</label><select id="role"><option value="">全部 role</option><option value="user">user</option><option value="assistant">assistant</option><option value="system">system</option></select></div>
-    <div><label>关键词</label><input id="kw" placeholder="搜索内容关键词，可留空"></div>
-    <div><label>每页条数</label><select id="pageSize"></select></div>
- </ classbutton">div" <通；会话互通：同一人设下不按 conversation_id 分隔，适合一条线走到底。</div>
-</div>
+  <section class="card">
+    <h2 id="formTitle">添加精华记忆</h2>
+    <p class="small" id="formHelp">精华记忆会被 AI 检索；对话归档只是原文备份。</p>
+    <input id="editId" type="hidden">
+    <div class="row2">
+      <div><label>人设</label><select id="formPersona"></select></div>
+      <div><label id="formTypeLabel">分类</label><select id="formCat"><option>喜好</option><option>雷点</option><option>设定</option><option>关系</option><option>剧情</option><option>档案</option></select></div>
+    </div>
+    <div id="archiveFields" class="row2" style="display:none">
+      <div><label>role</label><select id="formRole"><option>user</option><option>assistant</option><option>system</option></select></div>
+      <div><label>conversation_id，可留空</label><input id="formConv" placeholder="manual"></div>
+    </div>
+    <div id="memoryConv"><label>conversation_id，可留空</label><input id="formConvMem" placeholder="manual"></div>
+    <label>内容</label><textarea id="formContent" placeholder="精华记忆建议：[剧情] ......"></textarea>
+    <div class="btns" style="margin-top:10px"><button class="btn-ok" id="saveBtn">新增</button><button class="btn-gray" id="resetBtn">取消编辑/清空</button></div>
+  </section>
+</main>
 
-<div class="card">
-  <b id="addTitle">添加精华记忆</b>
-  <label>人设</label>
-  <select id="addPersona"></select>
-  <div id="add</ id="addCat"><option>喜好</option><option>雷点</option><option>设定</option><option>关系</option><option>剧情</option><option>档案</option></select></div>
-  <div id="addRoleBox" class="hide"><label>role</label><select id="addRole"><option value="user">user</option><option value="assistant">assistant</><></conversation同）Conv>="精华记忆可直接写正文，系统会自动补 [分类]；归档写原文"></textarea>
-  <button id="addBtn">添加</button><span id="addMsg" class="muted"></span>
-  <div class="muted">精华记忆会被 AI 检索；对话归档只是原文备份。</div>
-</div>
-
-<div id="list"></div>
-
- classdivpager">
-  <button id="prev">上一页</button>
-  <span id="pageInfo" class="muted">第 1 / 1 页，共 0 条</span>
-  <input id="jumpPage" type="number" min="1" value="1">
-  <button id="jump">跳转</button>
-  <button id="next">下一页</button>
-</div></div>
-
-<div id="full" class="fullbox"><button id="closeFull" class="x">关闭全文</button><div id="fullText" class="fulltext"></div></div>
+<div id="modal" class="modal"><div class="modal-box"><div class="topline"><h3 id="modalTitle">详情</h3><button class="btn-gray" id="closeModal" style="width:auto">关闭</button></div><pre id="modalText"></pre></div></div>
 
 <script>
-var U='',K='',TB='chat_messages',PAGE=1,TOTAL=0,PER=20,TEXTS={},PERSONAS=[];
-var CONFIRMED=['默认助手_技术线','默认助手','骆云影_联姻线','测试助手'];
+const state={url:'',key:'',personas:[],tab:'mem',page:1,pageSize:20,total:0,rows:[]};
+const allowNames=['默认助手','默认助手_技术线','骆云影_联姻线','测试助手'];
 function el(id){return document.getElementById(id)}
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function headers(extra){var h={apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'};if(extra)for(var k in extra)h[k]=extra[k];return h}
-function base(t){return U.replace(/\/+$/,'')+'/rest/v1/'+t}
-function isUuid(s){return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(s||''))}
-function isAllowedPersona(name){name=String(name||'').trim();if(!name||isUuid(name))return false;var low=name.toLowerCase();if(low.index('>=low('>=.index('unknown')>=0||low.indexOf('未映射')>=0)return false;if(name==='kiro_技术咨询线')return false;return CONFIRMED.indexOf(name)>=0}
-function pageSizes(){return TB==='chat_archive'?[5,10,20]:[20,50]}
-function fillPageSize(){var old=el('pageSize').value;el('pageSize').innerHTML='';pageSizes().forEach(function(n){var o=document.createElement('option');o.value=n;o.text=n/页';el('pageSize').appendChild(o)});el('pageSize').value=old&&pageSizes().indexOf(parseInt(old))>=0?old:String(pageSizes()[0]);PER=parseInt(el('pageSize').value)}
-function currentPersona(){return el('persona').value}
-function setTab(t){TB=t;PAGE=1;el('tabMsg').className=t==='chat_messages'?'on':'';el('tabArc').className=t==='chat_archive'?'on':'';el('catBox').className=t==='chat_messages'?'':'hide';el('roleBox').className=t==='chat_archive'?'':'hide';el('addTitle').textContent=t==='chat_messages'?'添加精华记忆':'添加对话归档';el('addCatBox').className=t==='chat_messages'?'':'hide';el('addRoleBox').className=t==='chat_archive'?'':'hide';fillPageSize();loadPage()}
-async function apiGet(url,count){var h=count?headers({'Prefer':'count=exact'}):headers();var r=await fetch(url,{headers:h});if(!r.ok)throw new Error(r.status+' '+await r.text());var total=0,cr=r.headers.get('content-range')||'';if(cr.indexOf('/')>=0){var n=cr.split('/')[1];total=n==='*'?0:parseInt(n)||0}return {data:await r.json(),total:total}}
-function saveCfg(){U=el('url').value.trim().replace(/\/+$/,'');K=el('key').value.trim();localStorage.oc_v9_u=U;localStorage.oc_v9_k=K;el('msg').textContent='已保存，正在连接...';loadPersonas().then(loadPage).then(function(){el('msg').textContent='连接成功'}).catch(function(e){el('msg').innerHTML='<span class="err">连接失败：'+esc(e.message)+'</span>'})}
-async function loadPersonas(){if(!U||!K)return;var rows=[];try{rows=(await apiGet(base('personas')+'?select=persona_name,display_name,enabled,sort_order&enabled=eq.true&order=sort_order.asc&limit=200')).data||[]}catch(e){rows=[]}
-var seen={};PERSONAS=[];rows.forEach(function(r){var n=r.persona_name;if(isAllowedPersona(n)&&!seen[n]){seen[n]=1;PERSONAS.push({name:n,display:r.display_name||n})}});
-CONFIRMED.forEach(function(n){if(!seen[n]){seen[n]=1;PERSONAS.push({name:n,display:n})}});
-function fillSelect(sel,all){var old=sel.value;sel.innerHTML=all?'<option value="">全部已确认人设</option>':'<option value="">请选择设</optionAS(function(p){var o=document.createElement('option');o.value=p.name;o.textContent=p.display&&p.display!==p.name?p.name+'（'+p.display+'）':p.name;sel.appendChild(o)});if(old)sel.value=old}
-fillSelect(el('persona'),true);fillSelect(el('addPersona'),false)}
-function buildQuery(){PER=parseInt(el('pageSize').value)||pageSizes()[0];var off=(PAGE-1)*PER;var q=base(TB)+'?select=*&order=created_at.desc&limit='+PER+'&offset='+off;var p=currentPersona();if(p)q+='&assistant_id=eq.'+encodeURIComponent(p);var kw=el('kw').value.trim();if(kw)q+='&content=ilike.*'+encodeURIComponent(kw)+'*';if(TB==='chat_messages'){var c=el('cat').value;if(c)q+='&content=ilike.*%5B'+encodeURIComponent(c)+'%5D*'}else{var r=el('role').value;if(r)q+='&role=eq.'+encodeURIComponent(r)}return q}
-async function loadPage(){if(!U||!K)return;el('list').innerHTML='<div class="loading">加载中...</div>';try{var res=await apiGet(buildQuery(),true);TOTAL=res.total;render(res.data||[]);var pages=Math.max(1,Math.ceil(TOTAL/PER));if(PAGE>pages){PAGE=pages;return loadPage()}el('pageInfo').textContent='第 '+PAGE+' / '+pages+' 页，共 '+TOTAL+' 条';el('jumpPage').value=PAGE;el('prev').disabled=PAGE<=1;el('next').disabled=PAGE>=pages;el('stat').textContent=(TB==='chat_messages'?'精华记忆':'对话归档')+'：当前筛选共 '+TOTAL+' 条'}catch(e){el('list').innerHTML='<div class="card err">加载失败：'+esc(e.message)+'</div>'}}
-function render(arr){TEXTS={};if(!arr.length){el('list').innerHTML='<div class="card muted" style="text-align:center">没有数据</div>';return}el('list').innerHTML='';arr.forEach(function(it){TEXTS[it.id]=it.content||'';var txt=it.content||'',short=txt.length>300?txt.slice(0,300)+'……':txt;var div=document.createElement('div');div.className='item';div.innerHTML='<div class="meta"><span class="pill">'+esc(it.assistant_id||'')+'</span><span class="pill pill2">'+esc(it.role||'')+'</span>'+(it.category?'<span class="pill pill2">'+esc(it.category)+'</span>':'')+'</div><div class="content">'+esc(short)+'</div><div class="time">'+esc((it.created_at||'').replace('T',' ').slice(0,16))+' | conv: '+esc(it.conversation_id||'')+'</div>'+(txt.length>300?'<button class="small gray" data-act="full" data-id="'+it.id+'">查看全文</button>':'')+'<button class="small" data-act="edit" data-id="'+it.id+'">修改</button><button class="small danger" data-act="del" data-id="'+it.id+'">删除</button>';el('list').appendChild(div)})}
-async function addItem(){if(!U||!K)return;var p=el('addPersona').value.trim(),txt=el('addText').value.trim(),conv=el('addConv').value.trim()||'manual';if(!p){el('addMsg').textContent='请选择人设';return}if(!txt){el('addMsg').textContent='内容为空';return}var body;if(TB==='chat_messages'){var c=el('addCat').value;if(!/^\[[^\]]+\]/.test(txt))txt='['+c+'] '+txt;body={assistant_id:p,conversation_id:conv,role:'system',content:txt,category:c}}else{body={assistant_id:p,conversation_id:conv,role:el('addRole').value,content:txt,category:'archive'}}try{var r=await fetch(base(TB),{method:'POST',headers:headers({'Prefer':'return=minimal'}),body:JSON.stringify(body)});if(!r.ok)throw new Error(r.status+' '+await r.text());el('addText').value='';el('addMsg').textContent='已添加';PAGE=1;loadPage()}catch(e){el('addMsg').textContent='添加失败：'+e.message}}
-async function delItem(id){if(!confirm('确定删除这条记录？'))return;var r=await fetch(base(TB)+'?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:headers()});if(!r.ok)alert('删除失败：'+await r.text());loadPage()}
-async function editItem(id){var n=prompt('修改内容：',TEXTS[id]||'');if(n==null)return;var r=await fetch(base(TeqencodeURIComponent(id),{method:'PATCH',headers:headers(),body:JSON.stringify({content:n})});if(!r.ok)alert('修改失败：'+await r.text());loadPage()}
-function showFull(id){el('fullText').textContent=TEXTS[id]||'';el('full').style.display='block'}
-document.addEventListener('click',function(e){var t=e.target;if(t.id==='save')saveCfg();else if(t.id==='clearCfg'){localStorage.removeItem('oc_v9_u');localStorage.removeItem('oc_v9_k');location.reload()}else if(t.id==='tabMsg')setTab('chat_messages');else if(t.id==='tabArc')setTab('chat_archive');else if(t.id==='query'){PAGE=1;loadPage()}else if(t.id==='reloadPersona')loadPersonas().then(function(){PAGE=1;loadPage()});else if(t.id==='addBtn')addItem();else if(t.id==='prev'&&PAGE>1){PAGE--;loadPage();scrollTo(0,0)}else if(t.id==='next'){PAGE++;loadPage();scrollTo(0,0)}else if(t.id==='jump'){var p=parseInt(el('jumpPage').value)||1;var pages=Math.max(1,Math.ceil(TOTAL/PER));PAGE=Math.max(1,Math.min(p,pages));loadPage();scrollTo(0,0)}else if(t.id==='closeFull')el('full').style.display='none';else if(t.dataset&&t.dataset.act==='full')showFull(t.dataset.id);else if(t.dataset&&t.dataset.act==='edit')editItem(t.dataset.id);else if(t.dataset&&t.dataset.act==='del')delItem(t.dataset.id)});
-document.addEventListener('change',function(e){if(['persona','cat','role','pageSize'].indexOf(e.target.id)>=0){PAGE=1;loadPage()}});
-window.onload=function(){fillPageSize();U=localStorage.oc_v9_u||'';K=localStorage.oc_v9_k||'';el('url').value=U;el('key').value=K;if(U&&K)loadPersonas().then(loadPage).catch(function(e){el('msg').innerHTML='<span class="err">连接失败：'+esc(e.message)+'</span>'})};
+function setStatus(t){el('status').textContent=t}
+function cleanUrl(u){u=String(u||'').trim(); while(u.endsWith('/')) u=u.slice(0,-1); if(u.endsWith('/rest/v1')) u=u.slice(0,-8); return u}
+function isUuidLike(s){s=String(s||''); return s.length===36 && s[8]==='-' && s[13]==='-' && s[18]==='-' && s[23]==='-'}
+function hiddenPersona(name){let s=String(name||'').toLowerCase(); if(!s||isUuidLike(s)) return true; let bad=['diagnose','debug','manual','unknown','未映射','kiro']; return bad.some(x=>s.includes(x))}
+function okPersona(p){let n=p.persona_name||''; if(hiddenPersona(n)) return false; return allowNames.includes(n)}
+async function api(path,opt={}){if(!state.url||!state.key) throw new Error('请先填写 URL 和 key 并连接'); let r=await fetch(state.url+'/rest/v1/'+path,{...opt,headers:{apikey:state.key,Authorization:'Bearer '+state.key,'Content-Type':'application/json',Prefer:'return=representation',...(opt.headers||{})}}); let txt=await r.text(); if(!r.ok) throw new Error('HTTP '+r.status+' '+txt); try{return txt?JSON.parse(txt):null}catch(e){return txt}}
+async function apiCount(path){let r=await fetch(state.url+'/rest/v1/'+path,{headers:{apikey:state.key,Authorization:'Bearer '+state.key,Prefer:'count=exact'}}); let txt=await r.text(); if(!r.ok) throw new Error('HTTP '+r.status+' '+txt); let cr=r.headers.get('content-range')||''; let total=Number(cr.split('/')[1]||0); return {data:txt?JSON.parse(txt):[],total}}
+function fillSelect(sel,empty){sel.innerHTML=''; if(empty){let o=document.createElement('option');o.value='';o.textContent=empty;sel.appendChild(o)} state.personas.forEach(p=>{let o=document.createElement('option');o.value=p.persona_name;o.textContent=p.display_name?p.persona_name+'（'+p.display_name+'）':p.persona_name;sel.appendChild(o)})}
+function syncPersonas(){fillSelect(el('personaSelect'),'请选择人设');fillSelect(el('formPersona'),'请选择人设')}
+function setPageSizes(){let ps=el('pageSize');ps.innerHTML='';(state.tab==='mem'?[20,50]:[5,10,20]).forEach(n=>{let o=document.createElement('option');o.value=n;o.textContent=n;ps.appendChild(o)});state.pageSize=Number(ps.value)}
+async function connect(){try{state.url=cleanUrl(el('sbUrl').value);state.key=el('sbKey').value.trim();localStorage.setItem('memv9_url',state.url);localStorage.setItem('memv9_key',state.key);setStatus('连接中，正在读取 personas...');let rows=await api('personas?select=persona_name,display_name,enabled,sort_order&enabled=eq.true&order=sort_order.asc');state.personas=(rows||[]).filter(okPersona);let existing=new Set(state.personas.map(p=>p.persona_name));allowNames.forEach(n=>{if(!existing.has(n)) state.personas.push({persona_name:n,display_name:n})});syncPersonas();setStatus('已连接。可用人设：'+state.personas.map(p=>p.persona_name).join('、'));await query(1)}catch(e){setStatus('连接失败：'+e.message)}}
+function buildPath(){let table=state.tab==='mem'?'chat_messages':'chat_archive';let params=['select=*'];let pn=el('personaSelect').value;if(pn) params.push('assistant_id=eq.'+encodeURIComponent(pn));let kw=el('keyword').value.trim();if(kw) params.push('content=ilike.*'+encodeURIComponent(kw)+'*');if(state.tab==='mem'){let c=el('catSelect').value;if(c) params.push('category=ilike.'+encodeURIComponent(c)+'*')}else{let r=el('roleSelect').value;if(r) params.push('role=eq.'+encodeURIComponent(r))}params.push('order=created_at.desc');let from=(state.page-1)*state.pageSize;let to=from+state.pageSize-1;params.push('limit='+state.pageSize);params.push('offset='+from);return table+'?'+params.join('&')}
+async function query(page){try{state.page=page||1;state.pageSize=Number(el('pageSize').value||state.pageSize);let res=await apiCount(buildPath());state.rows=res.data||[];state.total=res.total||0;renderTable();renderPage()}catch(e){setStatus('查询失败：'+e.message)}}
+function renderPage(){let pages=Math.max(1,Math.ceil(state.total/state.pageSize));if(state.page>pages)state.page=pages;el('jumpPage').value=state.page;el('pageInfo').textContent='第 '+state.page+' / '+pages+' 页，共 '+state.total+' 条'}
+function esc(s){return String(s==null?'':s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}
+function renderTable(){let th=state.tab==='mem'?'<tr><th>时间</th><th>人设</th><th>分类</th><th>内容</th><th>操作</th></tr>':'<tr><th>时间</th><th>人设</th><th>role</th><th>内容</th><th>操作</th></tr>';el('thead').innerHTML=th;el('tbody').innerHTML='';state.rows.forEach(r=>{let tr=document.createElement('tr');let type=state.tab==='mem'?(r.category||''):(r.role||'');tr.innerHTML='<td class="small">'+esc(String(r.created_at||'').slice(0,16))+'</td><td>'+esc(r.assistant_id||'')+'</td><td><span class="pill">'+esc(type)+'</span></td><td class="content-cell">'+esc(r.content||'')+'</td><td><div class="btns"><button class="btn-light" data-act="view">查看</button><button class="btn-light" data-act="edit">编辑</button><button class="btn-red" data-act="del">删除</button></div></td>';tr.querySelector('[data-act=view]').onclick=()=>showDetail(r);tr.querySelector('[data-act=edit]').onclick=()=>editRow(r);tr.querySelector('[data-act=del]').onclick=()=>delRow(r);el('tbody').appendChild(tr)})}
+function showDetail(r){el('modalTitle').textContent=r.assistant_id||'详情';el('modalText').textContent=JSON.stringify(r,null,2);el('modal').classList.add('show')}
+function editRow(r){el('editId').value=r.id;el('formPersona').value=r.assistant_id||'';if(state.tab==='mem'){el('formCat').value=(r.category||'剧情').replace('[','').replace(']','')}else{el('formRole').value=r.role||'user';el('formConv').value||ConvMem').value=r.conversation=r.content||'';({top:document.body.scrollHeight,behavior:'smooth'})}
+async function delRow(r){if(!confirm('条 api(table+'?id=eq.'+encodeURIComponent(r.id),{method:'DELETE'});await query(state.page)}catch(e){alert('删除失败：'+e.message)}}
+function normalizeContent(){let c=el('formContent').value.trim();if(state.tab==='mem'){let cat=el('formCat').value;if(!c.startsWith('[')) c='['+cat+'] '+c}return c}
+async function saveForm(){try{let id=el('editId').value;let table=state.tab==='mem'?'chat_messages':'chat_archive';let persona=el('formPersona').value;if(!persona)throw new Error('请选择人设');let data={assistant_id:persona,content:normalizeContent(),conversation_id:state.tab==='mem'?(el('formConvMem').value||'manual'):(el('formConv').value||'manual')};if(state.tab==='mem'){data.role='system';data.category=el('formCat').value}else{data.role=el('formRole').value;data.category='archive'}if(id){await api(table+'?id=eq.'+encodeURIComponent(id),{method:'PATCH',body:JSON.stringify(data)})}else{await api(table,{method:'POST',body:JSON.stringify(data)})}resetForm();await query(1)}catch(e){alert('保存失败：'+e.message)}}
+function resetForm(){el('editId').value='';el('formContent').value='';el('formConv').value='';el('formConvMem').value='';el('saveBtn').textContent='新增'}
+function switchTab(t){state.tab=t;state.page=1;el('tabMem').classList.toggle('active',t==='mem');el('tabArc').classList.toggle('active',t==='arc');el('catWrap').style.display=t==='mem'?'block':'none';el('roleWrap').style.display=t==='arc'?'block':'none';el('archiveFields').style.display=t==='arc'?'grid':'none';el('memoryConv').style.display=t==='mem'?'block':'none';el('formTitle').textContent=t==='mem'?'添加精华记忆':'添加对话归档';setPageSizes();renderTable();query(1)}
+el('connectBtn').onclick=connect;el('clearBtn').onclick=()=>{localStorage.removeItem('memv9_url');localStorage.removeItem('memv9_key');location.reload()};el('queryBtn').onclick=()=>query(1);el('prevBtn').onclick=()=>{if(state.page>1)query(state.page-1)};el('nextBtn').onclick=()=>{let pages=Math.max(1,Math.ceil(state.total/state.pageSize));if(state.page<pages)query(state.page+1)};el('jumpBtn').onclick=()=>query(Math.max(1,Number(el('jumpPage').value||1)));el('pageSize').onchange=()=>query(1);el('tabMem').onclick=()=>switchTab('mem');el('tabArc').onclick=()=>switchTab('arc');el('saveBtn').onclick=saveForm;el('resetBtn').onclick=resetForm;el('closeModal').onclick=()=>el('modal').classList.remove('show');
+el('sbUrl').value=localStorage.getItem('memv9_url')||'';el('sbKey').value=localStorage.getItem('memv9_key')||'';setPageSizes();syncPersonas();if(el('sbUrl').value&&el('sbKey').value)connect();
 </script>
 </body>
 </html>
