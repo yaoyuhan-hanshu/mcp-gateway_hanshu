@@ -101,12 +101,20 @@ class HostFixMiddleware:
             await self.app(scope, receive, send)
             return
 
-        # ---------- 根路径：返回占位（或前端 index.html）----------
-        if scope["path"] == "/":
-            html = "<h1>🚪 MCP Gateway</h1><p>Endpoints: <code>/health</code> <code>/sse</code> <code>/v1/chat/completions</code></p>"
-            await send({"type": "http.response.start", "status": 200,
-                        "headers": [(b"content-type", b"text/html; charset=utf-8")]})
-            await send({"type": "http.response.body", "body": html.encode("utf-8")})
+        # ---------- 根路径 / 面板：返回 index.html ----------
+        if scope["path"] in ("/", "/panel", "/memory"):
+            try:
+                here = os.path.dirname(os.path.abspath(__file__))
+                with open(os.path.join(here, "index.html"), "rb") as f:
+                    body = f.read()
+                await send({"type": "http.response.start", "status": 200,
+                            "headers": [(b"content-type", b"text/html; charset=utf-8")]})
+                await send({"type": "http.response.body", "body": body})
+            except Exception as e:
+                html = "<h1>面板未找到</h1><p>请确认 index.html 已上传到仓库根目录。</p><pre>" + str(e) + "</pre>"
+                await send({"type": "http.response.start", "status": 500,
+                            "headers": [(b"content-type", b"text/html; charset=utf-8")]})
+                await send({"type": "http.response.body", "body": html.encode("utf-8")})
             return
 
         # ---------- 健康检查 ----------
