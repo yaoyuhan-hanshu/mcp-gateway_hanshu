@@ -525,6 +525,60 @@ class HostFixMiddleware:
         except Exception as e:
             _log(f"❌ 存库失败: {e}")
 
+        # 1.5 写入 OrangeChat 对话归档 chat_archive
+        # 说明：这里先只做原文归档，不做精华提炼。
+        # 精华提炼需要单独做“事实级去重 / 更新迭代”，不能在这里粗暴写入。
+        try:
+            persona_name = (
+                os.environ.get("ORANGECHAT_PERSONA_NAME", "").strip()
+                or os.environ.get("CHAT_PERSONA_NAME", "").strip()
+                or "默认助手_技术线"
+            )
+            conversation_id = (
+                os.environ.get("ORANGECHAT_CONVERSATION_ID", "").strip()
+                or os.environ.get("CHAT_TAG", "").strip()
+                or "Web_Chat"
+            )
+
+            def _archive_exists(role, content):
+                return (
+                    sb.table("chat_archive")
+                    .select("id")
+                    .eq("assistant_id", persona_name)
+                    .eq("conversation_id", conversation_id)
+                    .eq("role", role)
+                    .eq("content", content)
+                    .limit(1)
+                    .execute()
+                    .data
+            )
+
+        def _insert_archive(role, content):
+            clean_content = str(content or "").strip()
+            if not clean_content:
+                return None
+            if _archive_exists(role, clean_content):
+                return None
+            return (
+                sb.table("chat_archive")
+                .insert({
+                    "assistant_id": persona_name,
+                    "conversation_id": conversation_id,
+                    "role": role,
+                    "content": clean_content,
+                    "category": "archive",
+                })
+                .execute()
+                .data
+            )
+
+        await asyncio.to_thread(_insert_archive, "user", user_msg)
+        await asyncio.to_thread(_insert_archive, "assistant", final_save_text)
+        _log("📦 OrangeChat 对话归档已写入 chat_archive: " + persona_name)
+
+    except Exception as e:
+        _log("⚠️ OrangeChat 对话归档写入失败: " + str(e))
+       
         # 2. 写入 Mem0（可选）
         mc = _get_mem0()
         if mc and user_msg:
