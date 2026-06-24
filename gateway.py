@@ -140,6 +140,11 @@ class HostFixMiddleware:
             await _send_cors_preflight(send)
             return
 
+        # ---------- 面板 API ----------
+        if scope["path"].startswith("/api/panel/"):
+            await self._handle_panel_api(scope, receive, send)
+            return
+
         # ---------- 运行日志接口 ----------
         if scope["path"] == "/api/logs":
             await self._handle_logs(send)
@@ -533,6 +538,168 @@ class HostFixMiddleware:
                 _log("🧠 Mem0 已写入")
             except Exception as e:
                 _log(f"Mem0 写入失败: {e}")
+
+    async def _handle_panel_api(self, scope, receive, send):
+        """记忆面板后端 API：读写 chat_messages / chat_archive / personas。"""
+        from urllib.parse import parse_qs
+
+        sb = _get_supabase()
+        if not sb:
+            await _send_json_resp(send, 500, {"error": "Supabase 未连接"})
+            return
+
+        path = scope.get("path", "")
+        method = scope.get("method", "GET").upper()
+        query = parse_qs(scope.get("query_string", b"").decode("utf-8", "ignore"))
+
+        def q(name, default=""):
+            v = query.get(name, [default])
+            return v[0] if v else default
+
+        async def read_body():
+            body = b""
+            while True:
+                msg = await receive()
+                body += msg.get("body", b"")
+                if not msg.get("more_body", False):
+                    break
+            if not body:
+                return {}
+            try:
+                return json.loads(body.decode("utf-8"))
+            except Exception:
+                return {}
+
+        def hidden(name):
+            s = str(name or "").strip().lower()
+            if not s:
+                return True
+            import re as _re
+            if _re.match(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", s):
+                return True
+            for b in ["diagnose", "debug", "manual", "unknown", "未映射", "kiro"]:
+                if b in s:
+                    return True
+            return False
+
+        def table_for(kind):
+            return "chat_archive" if kind == "archive" else "chat_messages"
+
+        try:
+            if path == "/api/panel/personas" and method == "GET":
+                def _run():
+                    return sb.table("personas").select(
+                        "persona_name,display_name,enabled,sort_order"
+                    ).eq("enabled", True).order("sort_order").limit(200).execute().data
+                rows = await asyncio.to_thread(_run)
+                rows = [r for r in (rows or []) if not hidden(r.get("persona_name"))]
+                wanted = {"默认助手", "默认助手_技术线", "骆云影_联姻线", "测试助手"}
+                rows = [r for r in rows if r.get("persona_name") in wanted]
+                await _send_json_resp(send, 200, {"data": rows})
+                return
+
+            if path == "/api/panel/records" and method == "GET":
+                kind = q("type", "memory")
+                table = table_for(kind)
+                persona = q("persona", "").strip()
+                keyword = q("keyword", "").strip()
+                category = q("category", "").strip()
+                role = q("role", "").strip()
+                page = max(1, int(q("page", "1") or "1"))
+                size = max(1, min(100, int(q("page_size", "20") or "20")))
+                start = (page - 1) * size
+                end = start + size - 1
+
+                def _run():
+                    qo = sb.table(table).select(
+                        "id,assistant_id,conversation_id,role,content,category,created_at",
+                        count="exact"
+                    )
+                    if persona:
+                        qo = qo.eq("assistant_id", persona)
+                    if category and kind != "archive":
+                        qo = qo.eq("category", category)
+                    if role and kind == "archive":
+                        qo = qo.eq("role", role)
+                    if keyword:
+                        qo = qo.ilike("content", "%" + keyword + "%")
+                    res = qo.order("created_at", desc=True).range(start, end).execute()
+                    return res.data or [], getattr(res, "count", None)
+
+                rows, total = await asyncio.to_thread(_run)
+                if total is None:
+                    total = len(rows)
+                pages = max(1, (total + size - 1) // size)
+                await _send_json_resp(send, 200, {
+                    "data": rows, "total": total, "page": page,
+                    "page_size": size, "total_pages": pages
+                })
+                return
+
+            if path == "/api/panel/record" and method == "POST":
+                data = await read_body()
+                kind = str(data.get("type") or "memory")
+                table = table_for(kind)
+                persona = str(data.get("persona") or "").strip()
+                content = str(data.get("content") or "").strip()
+                category = str(data.get("category") or "").strip()
+                role = str(data.get("role") or ("user" if kind == "archive" else "system")).strip()
+                conv = str(data.get("conversation_id") or "manual").strip()
+                if not persona or not content:
+                    await _send_json_resp(send, 400, {"error": "缺少人设或内容"})
+                    return
+                if kind != "archive" and not content.startswith("["):
+                    content = "[" + (category or "剧情") + "] " + content
+                row = {
+                    "assistant_id": persona, "conversation_id": conv,
+            "conversation_id": conv,
+                    "role": role, "content": content,
+                    "category": category or ("archive" if kind == "archive" else "剧情"),
+                }
+                def _run():
+                    return sb.table(table).insert(row).execute().data
+                out = await asyncio.to_thread(_run)
+                await _send_json_resp(send, 200, {"data": out, "id": (out[0].get("id") if out else "")})
+                return
+
+            if path == "/api/panel/record" and method == "PATCH":
+                data = await read_body()
+                kind = str(data.get("type") or "memory")
+                table = table_for(kind)
+                rid = str(data.get("id") or "").strip()
+                if not rid:
+                    await _send_json_resp(send, 400, {"error": "缺少 id"})
+                    return
+                upd = {}
+                for k in ["conversation_id", "role", "content", "category"]:
+                    if k in data:
+                        upd[k] = data[k]
+                if "persona" in data:
+                    upd["assistant_id"] = data["persona"]
+                def _run():
+                    return sb.table(table).update(upd).eq("id", rid).execute().data
+                out = await asyncio.to_thread(_run)
+                await _send_json_resp(send, 200, {"data": out, "id": rid})
+                return
+
+            if path == "/api/panel/record" and method == "DELETE":
+                data = await read_body()
+                kind = str(data.get("type") or "memory")
+                table = table_for(kind)
+                rid = str(data.get("id") or "").strip()
+                if not rid:
+                    await _send_json_resp(send, 400, {"error": "缺少 id"})
+                    return
+                def _run():
+                    return sb.table(table).delete().eq("id", rid).execute().data
+                await asyncio.to_thread(_run)
+                await _send_json_resp(send, 200, {"ok": True})
+                return
+
+            await _send_json_resp(send, 404, {"error": "未知 panel API"})
+        except Exception as e:
+            _log("Panel API 错误: " + str(e))
+            await _send_json_resp(send, 500, {"error": str(e)})
 
     # ------------------------------------------
     # 管理接口
