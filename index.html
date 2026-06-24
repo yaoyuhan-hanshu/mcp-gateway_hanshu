@@ -1,81 +1,74 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>记忆管理面板 v9.2</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>记忆管理面板 v9.3</title>
 <style>
-:root{--p:#7657c9;--p2:#8f79d8;--bg:#f7f4fb;--card:#fff;--line:#e7e1ef;--txt:#2d2438;--muted:#7b7088;--ok:#22a06b;--bad:#d64545;--warn:#8a6d1d}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:15px}.hero{background:linear-gradient(135deg,var(--p),var(--p2));color:white;padding:22px 18px}.hero h1{margin:0 0 8px;font-size:25px}.hero p{margin:0;opacity:.92;line-height:1.6}.wrap{max-width:1120px;margin:0 auto;padding:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin:14px 0;box-shadow:0 8px 25px rgba(48,32,85,.06)}label{display:block;color:var(--muted);margin:10px 0 6px}input,select,textarea{width:100%;border:1px solid #ddd7e8;border-radius:13px;padding:12px;background:#fff;color:var(--txt);font-size:15px}textarea{min-height:110px;resize:vertical}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}button{border:0;border-radius:13px;padding:12px 18px;font-weight:700;font-size:15px;cursor:pointer}.primary{background:var(--p);color:white}.green{background:#22a06b;color:white}.gray{background:#888;color:white}.light{background:#eee8fa;color:#584092}.danger{background:#d64545;color:white}.tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tab{background:#eee8fa;color:#644cae}.tab.active{background:var(--p);color:white}.status{margin-top:10px;padding:10px 12px;border-radius:12px;background:#fbf7df;color:var(--warn);line-height:1.6;white-space:pre-wrap}.status.ok{background:#e8f8f0;color:#126b47}.status.bad{background:#fdecec;color:#9c2929}.list{display:grid;gap:10px;margin-top:12px}.item{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff}.meta{color:var(--muted);font-size:13px;margin-bottom:6px}.content{white-space:pre-wrap;line-height:1.65;word-break:break-word}.pill{display:inline-block;background:#f0ebff;color:#5d45a8;border-radius:999px;padding:2px 8px;font-size:12px;margin-right:6px}.hidden{display:none!important}.note{color:var(--muted);line-height:1.65}.footer{color:var(--muted);font-size:13px;margin-top:8px}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.row button{padding:8px 12px;font-size:13px}@media(max-width:720px){.grid,.grid3{grid-template-columns:1fr}.wrap{padding:10px}.card{border-radius:14px;padding:12px}.hero h1{font-size:22px}}
+:root{--p:#7657c8;--p2:#9b7be8;--bg:#f7f3ff;--card:#fff;--line:#e7def7;--text:#24212a;--muted:#777;--ok:#28a36a;--bad:#c0392b}
+*{box-sizing0fontFont:degcolor:white}.hero h1{margin:0 0 8px;font-size:24px}.hero p{margin:0;opacity:.92}.wrap{max-width:1100px;margin:0 auto;padding:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin:14px 0;box-shadow:0 8px 28px rgba(84,54,150,.08)}label{display:block;margin:10px 0 6px;color:#666;font-size:14px}input,select,textarea{width:100%;border:1px solid #ddd;border-radius:12px;padding:11px 12px;background:#fff;font-size:15px}textarea{min-height:110px;resize:vertical}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}button{border:0;border-radius:12px;padding:11px 18px;background:var(--p);color:white;font-size:15px;font-weight:700}button.secondary{background:#eee;color:#333}button.green{background:var(--ok)}button.red{background:var(--bad)}button:disabled{opacity:.55}.status{margin-top:12px;padding:12px;border-radius:12px;background:#fff7d7;color:#6d5c1e;white-space:pre-wrap}.status.ok{background:#e8fff3;color:#12613f}.status.bad{background:#ffecec;color:#8a1f1f}.tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tab{background:#eee;color:#555}.tab.active{background:var(--p);color:#fff}.table{overflow:auto;border:1px solid var(--line);border-radius:14px;margin-top:12px}table{width:100%;border-collapse:collapse;min-width:760px}th,td{border-bottom:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}th{background:#fbf8ff}.content{max-width:420px;white-space:pre-wrap;word-break:break-word}.small{font-size:13px;color:var(--muted)}.pill{display:inline-block;padding:3px 8px;border-radius:999px;background:#eee;color:#555}.hide{display:none!important}@media(max-width:700px){.grid,.grid3{grid-template-columns:1fr}.hero h1{font-size:22px}.wrap{padding:10px}.card{padding:13px;border-radius:14px}button{width:100%}.btns{gap:8px}.tabs button{width:auto}}
 </style>
 </head>
 <body>
-<div class="hero"><h1>记忆管理面板 v9.2</h1><p>适配 chat_messages / chat_archive / personas；按人设隔离，会话互通。</p></div>
+<div class="hero"><h1>记忆管理面板 v9.3</h1><p>后端代理版：不在浏览器填写 Supabase key；按人设隔离，会话互通。</p></div>
 <div class="wrap">
-  <section class="card">
+  <div class="card">
     <div class="grid">
-      <div><label>Supabase 项目 URL</label><input id="sbUrl" placeholder="https://xxxx.supabase.co"></div>
-      <div><label>Supabase anon / publishable key</label><input id="sbKey" placeholder="sb_publishable_... 或 anon key"></div>
+      <div><label>面板密码 / API_SECRET</label><input id="apiKey" type="password" placeholder="例如 lyy123" autocomplete="current-password"></div>
+      <div><label>连接状态</label><div id="status" class="status">未连接。输入 API_SECRET 后点“连接网关”。</div></div>
     </div>
-    <div class="btns"><button class="green" id="connectBtn">保存并连接</button><button class="gray" id="clearBtn">清空本地配置</button></div>
-    <div id="status" class="status">未连接。点“保存并连接”后这里会显示成功或具体错误。</div>
-    <div class="note">当前为前端直连 Supabase REST。下一步需要配套 RLS policy；不要把页面和 key 发给陌生人。</div>
-  </section>
+    <div class="btns"><button onclick="connect()" class="green">连接网关</button><button onclick="clearKey()" class="secondary">清空本地密码</button></div>
+  </div>
 
-  <section class="card">
-    <div class="tabs"><button id="tabMem" class="tab active">精华记忆</button><button id="tabArc" class="tab">对话归档</button></div>
+  <div class="card">
+    <div class="tabs"><button id="tabMem" class="tab active" onclick="switchTab('memory')">精华记忆</button><button id="tabArc" class="tab" onclick="switchTab('archive')">对话归档</button></div>
     <div class="grid3">
       <div><label>人设</label><select id="persona"></select></div>
-      <div id="memCatBox"><label>分类</label><select id="memCat"><option value="">全部分类</option><option>喜好</option><option>雷点</option><option>设定</option><option>关系</option><option>剧情</option><option>档案</option></select></div>
-      <div id="arcRoleBox" class="hidden"><label>角色</label><select id="arcRole"><option value="">全部角色</option><option value="user">user</option><option value="assistant">assistant</option><option value="system">system</option></select></div>
-      <div><label>关键词</label><input id="keyword" placeholder="搜索内容关键词，可留空"></div>
-      <div><label>每页条数</label><select id="pageSize"></select></div>
-      <div><label>页码跳转</label><input id="pageNo" type="number" min="1" value="1"></div>
+      <div id="catBox"><label>分类</label><select id="category"><option value="">全部分类</option><option>喜好</option><option>雷点</option><option>设定</option><option>关系</option><option>剧情</option><option>档案</option></select></div>
+      <div id="roleBox" class="hide"><label>角色</label><select id="role"><option value="">全部 role</option><option>user</option><option>assistant</option><option>system</option></select></div>
     </div>
-    <div class="btns"><button class="primary" id="queryBtn">查询</button><button class="light" id="prevBtn">上一页</button><button class="light" id="nextBtn">下一页</button><button class="light" id="jumpBtn">跳转</button></div>
-    <div id="pageInfo" class="footer">第 0 / 0 页，共 0 条</div>
-    <div id="list" class="list"></div>
-  </section>
+    <div class="grid3">
+      <div><label>关键词</label><input id="q" placeholder="搜索内容关键词，可留空"></div>
+      <div><label>每页条数</label><select id="pageSize"><option>20</option><option>50</option></select></div>
+      <div><label>页码跳转</label><input id="pageInput" type="number" min="1" value="1"></div>
+    </div>
+    <div class="btns"><button onclick="loadRecords(1)">查询</button><button onclick="prevPage()" class="secondary">上一页</button><button onclick="nextPage()" class="secondary">下一页</button><button onclick="jumpPage()" class="secondary">跳转</button></div>
+    <div id="pageInfo" class="small" style="margin-top:10px">第 0 / 0 页，共 0 条</div>
+    <div class="table"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
+  </div>
 
-  <section class="card">
-    <h2 id="formTitle">添加精华记忆</h2>
-    <p class="note">精华记忆会被 AI 检索；对话归档只是原文备份。</p>
+  <div class="card">
+    <h2 id="formTitle" style="margin-top:0">添加精华记忆</h2>
+    <p class="small">精华记忆会被 AI 检索；对话归档只是原文备份。同一人设下不按 conversation_id 分隔，适合一条线走到底。</p>
     <input id="editId" type="hidden">
     <div class="grid">
       <div><label>人设</label><select id="formPersona"></select></div>
-      <div id="formCatBox"><label>分类</label><select id="formCat"><option>喜好</option><option>雷点</option><option>设定</option><option>关系</option><option>剧情</option><option>档案</option></select></div>
-      <div id="formRoleBox" class="hidden"><label>role</label><select id="formRole"><option value="user">user</option><option value="assistant">assistant</option><option value="system">system</option></select></div>
-      <div><label>conversation_id，可留空</label><input id="formConv" value="manual"></div>
+      <div id="formCategoryBox"><label>分类</label><select id="formCategory"><option>喜好</option><option>雷点</option><option>设定</option><option>关系</option><option>剧情</option><option>档案</option></select></div>
+      <div id="formRoleBox" class="hide"><label>role</label><select id="formRole"><option>user</option><option>assistant</option><option>system</option></select></div>
+      <div><label>conversation_id，可留空</label><input id="conversationId" value="manual"></div>
     </div>
-    <label>内容</label><textarea id="formContent" placeholder="精华记忆建议：[剧情] ……"></textarea>
-    <div class="btns"><button class="green" id="saveBtn">新增</button><button class="gray" id="resetBtn">取消编辑/清空</button></div>
-  </section>
+    <label>内容</label><textarea id="content" placeholder="精华记忆建议：[剧情] ……"></textarea>
+    <div class="btns"><button onclick="saveRow()" class="green">新增 / 保存</button><button onclick="resetForm()" class="secondary">取消编辑/清空</button></div>
+  </div>
 </div>
 <script>
+let mode='memory', page=1, total=0, totalPages=0, personas=[];
 const $=id=>document.getElementById(id);
-let cfg={url:"",key:""}, personas=[], mode="mem", page=1, pageSize=20, total=0, rows=[];
-const allowNames=["默认助手","默认助手_技术线","骆云影_联姻线","测试助手"];
-function setStatus(msg,type=""){const el=$("status");el.textContent=msg;el.className="status"+(type?" "+type:"");}
-function cleanUrl(u){return String(u||"").trim().replace(/\/+$/g,"");}
-function isUuid(s){s=String(s||"");return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(s)}
-function visiblePersona(p){const n=String(p.persona_name||"");const low=n.toLowerCase();if(!n||isUuid(n))return false;if(low.includes("diagnose")||low.includes("debug")||low.includes("unknown")||n.includes("未映射"))return false;if(n==="kiro_技术咨询线")return false;return allowNames.includes(n)}
-function headers(){return {"apikey":cfg.key,"Authorization":"Bearer "+cfg.key,"Content-Type":"application/json"}}
-async function sbFetch(path,opt={}){if(!cfg.url||!cfg.key)throw new Error("请先填写 Supabase URL 和 key");const r=await fetch(cfg.url+"/rest/v1/"+path,{...opt,headers:{...headers(),...(opt.headers||{})}});const text=await r.text();if(!r.ok)throw new Error("HTTP "+r.status+"："+text.slice(0,500));return text?JSON.parse(text):null}
-function fillSelect(sel){sel.innerHTML="";for(const p of personas){const op=document.createElement("option");op.value=p.persona_name;op.textContent=(p.display_name&&p.display_name!==p.persona_name)?`${p.persona_name}（${p.display_name}）`:p.persona_name;sel.appendChild(op)}}
-function syncSelects(){fillSelect($("persona"));fillSelect($("formPersona"));if(personas[=as[0].persona_name;$("formPersona").value=personas[0].persona_name}}
-async function connect(){try{cfg.url=cleanUrl($("sbUrl").value);cfg.key=String($("sbKey").value||"").trim();if(!cfg.url||!cfg.key){setStatus("请填写 Supabase URL 和 key。","bad");return}localStorage.setItem("oc_sb_url",cfg.url);localStorage.setItem("oc_sb_key",cfg.key);setStatus("正在连接 Supabase，读取 personas...","");const data=await sbFetch("personas?select=persona_name,display_name,enabled,sort_order&enabled=eq.true&order=sort_order.asc");personas=(data||[]).filter(visiblePersona);if(!personas.length){setStatus("已连上 Supabase，但没有找到允许显示的人设。请检查 personas 表。","bad");return}syncSelects();setPageSizeOptions();setStatus("连接成功。已加载人设：\n"+personas.map(p=>"- "+p.persona_name).join("\n"),"ok");page=1;await query()}catch(e){setStatus("连接失败：\n"+e.message,"bad")}}
-function setPageSizeOptions(){const ps=$("pageSize");ps.innerHTML="";const arr=mode==="mem"?[20,50]:[5,10,20];for(const n of arr){const op=document.createElement("option");op.value=n;op.textContent=n;ps.appendChild(op)}pageSize=arr[0];ps.value=String(pageSize)}
-function switchMode(m){mode=m;page=1;$("tabMem").classList.toggle("active",m==="mem");$("tabArc").classList.toggle("active",m==="arc");$("memCatBox").classList.toggle("hidden",m!=="mem");$("arcRoleBox").classList.toggle("hidden",m!=="arc");$("formCatBox").classList.toggle("hidden",m!=="mem");$("formRoleBox").classList.toggle("hidden",m!=="arc");$("formTitle").textContent=m==="mem"?"添加精华记忆":"添加对话归档";$("formContent").placeholder=m==="mem"?"精华记忆建议：[剧情] ……":"对话原文";setPageSizeOptions();resetForm();query()}
-function esc(v){return String(v??"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}
-function buildQuery(count=false){const table=mode==="mem"?"chat_messages":"chat_archive";let select="select=id,assistant_id,conversation_id,role,content,category,created_at";let q=table+"?"+select;const pn=$("persona").value;if(pn)q+="&assistant_id=eq."+encodeURIComponent(pn);const kw=$("keyword").value.trim();if(kw)q+="&content=ilike."+encodeURIComponent("*"+kw+"*");if(mode==="mem"){const c=$("memCat").value;if(c)q+="&category=ilike."+encodeURIComponent(c+"*")}else{const r=$("arcRole").value;if(r)q+="&role=eq."+encodeURIComponent(r)}q+="&order=created_at.desc";return q}
-async function query(){try{if(!cfg.url||!cfg.key){setStatus("未连接。请先保存并连接。","bad");return}pageSize=parseInt($("pageSize").value||"20",10);page=Math.max(1,parseInt($("pageNo").value||"1",10));const from=(page-1)*pageSize,to=from+pageSize-1;const path=buildQuery();const r=await fetch(cfg.url+"/rest/v1/"+path,{headers:{...headers(),"Range-Unit":"items","Range":from+"-"+to,"Prefer":"count=exact"}});const text=await r.text();if(!r.ok)throw new Error("HTTP "+r.status+"："+text.slice(0,500));rows=text?JSON.parse(text):[];const cr=r.headers.get("content-range")||"0-0/0";total=parseInt((cr.split("/")[1]||"0"),10)||0;renderList()}catch(e){setStatus("查询失败：\n"+e.message,"bad")}}
-function renderList(){const pages=Math.max(1,Math.ceil(total/pageSize));$("pageInfo").textContent=`第 ${total?page:0} / ${total?pages:0} 页，共 ${total} 条`;const box=$("list");box.innerHTML="";if(!rows.length){box.innerHTML="<div class='note'>暂无数据。</div>";return}for(const r of rows){const div=document.createElement("div");div.className="item";div.innerHTML=`<div class='meta'><span class='pill'>${esc(r.assistant_id)}</span><span class='pill'>${esc(r.category||r.role||"")}</span>${esc((r.created_at||"").slice(0,19))}</div><div class='content'>${esc(r.content)}</div><div class='row'><button class='light' data-act='edit'>编辑</button><button class='danger' data-act='del'>删除</button></div>`;div.querySelector("[data-act='edit']").onclick=()=>editRow(r);div.querySelector("[data-act='del']").onclick=()=>delRow(r.id);box.appendChild(div)}}
-function resetForm(){$("editId").value="";$("formConv").value="manual";$("formContent").value="";$("saveBtn").textContent="新增"}
-function editRow(r){$("editId").value=r.id;$("formPersona").value=r.assistant_id;$("formConv").value=r.conversation_id||"manual";$("formContent").value=r.content||"";if(mode==="mem")$("formCat").value=(r.category||"剧情").replace(/[\[\]]/g,"");else $("formRole").value=r.role||"user";$("saveBtn").textContent="保存修改";window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"})}
-function normalizeMemContent(c,cat){c=String(c||"").trim();if(c.startsWith("["))return c;return `[${cat||"剧情"}] `+c}
-async function saveRow(){try{if(!cfg.url||!cfg.key){setStatus("未连接。","bad");return}const id=$("editId").value;const table=mode==="mem"?"chat_messages":"chat_archive";const item={assistant_id:$("formPersona").value,conversation_id:$("formConv").value||"manual",content:$("formContent").value.trim()};if(!item.assistant_id||!item.content){setStatus("人设和内容不能为空。","bad");return}if(mode==="mem"){item.category=$("formCat").value;item.role="system";item.content=normalizeMemContent(item.content,item.category)}else{item.category="archive";item.role=$("formRole").value}let path=table;if(id)path+="?id=eq."+encodeURIComponent(id);const opt=id?{method:"PATCH",body:JSON.stringify(item),headers:{Prefer:"return=representation"}}:{method:"POST",body:JSON.stringify(item),headers:{Prefer:"return=representation"}};await sbFetch(path,opt);setStatus(id?"修改成功。":"新增成功。","ok");resetForm();await query()}catch(e){setStatus("保存失败：\n"+e.message,"bad")}}
-async function delRow(id){try{if(!confirm("确认删除这条记录？"))return;const table=mode==="mem"?"chat_messages":"chat_archive";await sbFetch(table+"?id=eq."+encodeURIComponent(id),{method:"DELETE"});setStatus("删除成功。","ok");await query()}catch(e){setStatus("删除失败：\n"+e.message,"bad")}}
-function init(){cfg.url=localStorage.getItem("oc_sb_url")||"";cfg.key=localStorage.getItem("oc_sb_key")||"";$("sbUrl").value=cfg.url;$("sbKey").value=cfg.key;$("connectBtn").onclick=connect;$("clearBtn").onclick=()=>{localStorage.removeItem("oc_sb_url");localStorage.removeItem("oc_sb_key");location.reload()};$("tabMem").onclick=()=>switchMode("mem");$("tabArc").onclick=()=>switchMode("arc");$("queryBtn").onclick=()=>{page=1;$("pageNo").value="1";query()};$("prevBtn").onclick=()=>{if(page>1){page--;$("pageNo").value=page;query()}};$("nextBtn").onclick=()=>{if(page*pageSize<total){page++;$("pageNo").value=page;query()}};$("jumpBtn").onclick=query;$("saveBtn").onclick=saveRow;$("resetBtn").onclick=resetForm;setPageSizeOptions();if(cfg.url&&cfg.key)setStatus("检测到本地配置。请点保存并连接。","")}
-init();
+function key(){return $('apiKey').value.trim()||localStorage.getItem('panel_api_key')||''}
+function setStatus(msg,type){const el=$('status');el.className='status '+(type||'');el.textContent=msg}
+async function api(path,opt={}){const k=key();if(!k)throw new Error('请先输入面板密码 / API_SECRET');const headers=Object.assign({'x-api-key':k},opt.headers||{});if(opt.body && !(opt.body instanceof FormData))headers['content-type']='application/json';const r=await fetch(path,Object.assign({},opt,{headers}));const text=await r.text();let data;try{data=JSON.parse(text)}catch(e){data={raw:text}}if(!r.ok||data.error)throw new Error(data.error||data.message||text||('HTTP '+r.status));return data}
+function clearKey(){localStorage.removeItem('panel_api_key');$('apiKey').value='';setStatus('已清空本地密码。','')}
+async function connect(){try{setStatus('正在连接网关并读取人设……','');localStorage.setItem('panel_api_key',$('apiKey').value.trim());const data=await api('/api/panel/personas');personas=data.data||[];fillPersonas();setStatus('✅ 已连接，加载人设 '+personas.length+' 个。','ok');if(personas.length)await loadRecords(1)}catch(e){setStatus('❌ 连接失败：'+e.message,'bad')}}
+function fillPersonas(){const opts=personas.map(p=>'<option value="'+esc(p.persona_name)+'">'+esc(p.display_name||p.persona_name)+'</option>').join('');$('persona').innerHTML=opts;$('formPersona').innerHTML=opts}
+function switchTab(m){mode=m;page=1;$('tabMem').classList.toggle('active',m==='memory');$('tabArc').classList.toggle('active',m==='archive');$('catBox').classList.toggle('hide',m!=='memory');$('roleBox').classList.toggle('hide',m!=='archive');$('formCategoryBox').classList.toggle('hide',m!=='memory');$('formRoleBox').classList.toggle('hide',m!=='archive');$('formTitle').textContent=m==='memory'?'添加精华记忆':'添加对话归档';$('pageSize').innerHTML=m==='memory'?'<option>20</option><option>50</option>':'<option>5</option><option>10</option><option>20</option>';resetForm();loadRecords(1)}
+async function loadRecords(p){try{page=p||1;const params=new URLSearchParams({type:mode,persona:$('persona').value||'',q:$('q').value||'',page:String(page),page_size:$('pageSize').value});if(mode==='memory')params.set('category',$('category').value||'');else params.set('role',$('role').value||'');const data=await api('/api/panel/records?'+params.toString());total=data.total||0;totalPages=data.total_pages||0;renderRows(data.data||[]);$('pageInfo').textContent='第 '+page+' / '+totalPages+' 页，共 '+total+' 条';$('pageInput').value=page}catch(e){setStatus('❌ 查询失败：'+e.message,'bad')}} 
+function renderRows(rows){if(mode==='memory'){$('thead').innerHTML='<tr><th>时间</th><th>人设</th><th>分类</th><th>内容</th><th>操作</th></tr>';$('tbody').innerHTML=rows.map(r=>'<tr><td>'+esc((r.created_at||'').slice(0,16))+'</td><td>'+esc(r.assistant_id||'')+'</td><td><span class="pill">'+esc(r.category||'')+'</span></td><td class="content">'+esc(r.content||'')+'</td><td>'+ops(r)+'</td></tr>').join('')}else{$('thead').innerHTML='<tr><th>时间</th><th>人设</th><th>role</th><th>内容</th><th>操作</th></tr>';$('tbody').innerHTML=rows.map(r=>'<tr><td>'+esc((r.created_at||'').slice(0,16))+'</td><td>'+esc(r.assistant_id||'')+'</td><td><span class="pill">'+esc(r.role||'')+'</span></td><td class="content">'+esc(r.content||'')+'</td><td>'+ops(r)+'</td></tr>').join('')}}
+function ops(r){return '<button class="secondary" onclick=\'editRow('+JSON.stringify(r).replace(/'/g,'&#39;')+')\'>编辑</button> <button class="red" onclick="deleteRow(\''+r.id+'\')">删除</button>'}
+function prevPage(){if(page>1)loadRecords(page-1)}function nextPage(){if(page<totalPages)loadRecords(page+1)}function jumpPage(){let p=parseInt($('pageInput').value||'1',10);if(p<1)p=1;if(totalPages&&p>totalPages)p=totalPages;loadRecords(p)}nasync function saveRow(){try{const body={type:mode,id:$('editId').value||'',persona:$('formPersona').value,conversation_id:$('conversationId').value||'manual',content:$('content').value||''};if(mode==='memory')body.category=$('formCategory').value;else body.role=$('formRole').value;const data=await api('/api/panel/record',{method:body.id?'PATCH':'POST',body:JSON.stringify(body)});setStatus('✅ 已保存：'+(data.id||body.id||''),'ok');resetForm();loadRecords(page)}catch(e){setStatus('❌ 保存失败：'+e.message,'bad')}}
+function editRow(r){$('editId').value=r.id||'';$('formPersona').value=r.assistant_id||'';$('conversationId').value=r.conversation_id||'manual';$('content').value=r.content||'';if(mode==='memory')$('formCategory').value=(r.category||'剧情').replace(/[\[\]]/g,'');else $('formRole').value=r.role||'user';window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'}) }
+async function deleteRow(id){if(!confirm('确定删除这条记录？'))return;try{await api('/api/panel/record',{method:'DELETE',body:JSON.stringify({type:mode,id})});setStatus('✅ 已删除。','ok');loadRecords(page)}catch(e){setStatus('❌ 删除失败：'+e.message,'bad')}}
+function resetForm(){$('editId').value='';$('conversationId').value='manual';$('content').value=''}function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+window.addEventListener('DOMContentLoaded',()=>{const k=localStorage.getItem('panel_api_key');if(k){$('apiKey').value=k;connect()}});
 </script>
 </body>
 </html>
