@@ -526,48 +526,42 @@ class HostFixMiddleware:
             _log(f"❌ 存库失败: {e}")
 
 
-        # 1.5 写入 OrangeChat 对话归档 chat_archive
+        # 1.5 写入 OrangeChat 对归档 chat        # 先只做原文归档，不做精华提炼
         try:
-            persona_name = (
-                os.environ.get("ORANGECHAT_PERSONA_NAME", "").strip()
-                or os.environ.get("CHAT_PERSONA_NAME", "").strip()
-                or "默认助手_技术线"
-            )
-            conversation_id = (
-                os.environ.get("ORANGECHAT_CONVERSATION_ID", "").strip()
-                or os.environ.get("CHAT_TAG", "").strip()
-                or "Web_Chat"
-            )
+           persona_name = os("ANGEA_NAME", "").strip()
+               or os.environ.get("CHAT_PERSONA_NAME", "").strip                or "默认助手_技术线"
+           )
+           conversation_id = (
+               os.environ.get("ORANGECHAT_CONVERSATION_ID", "").strip()
+               or os.environ.get("CHAT_TAG", "").strip()
+               or "Web_Chat"
+           )
 
-            user_content = str(user_msg or "").strip()
-            assistant_content = str(final_save_text or "").strip()
+           user_content = str(user_msg or "").strip()
+           assistant_content = str(final_save_text or "").strip()
 
-            if user_content:
-                await asyncio.to_thread(
-                    lambda: sb.table("chat_archive").insert({
-                        "assistant_id": persona_name,
-                        "conversation_id": conversation_id,
-                        "role": "user",
-                        "content": user_content,
-                        "category": "archive",
-                    }).execute()
-                )
+           if user_content:
+               sb.table("chat_archive").insert({
+                   "assistant_id": persona_name,
+                   "conversation_id": conversation_id,
+                   "role": "user",
+                   "content": user_content,
+                   "category": "archive",
+               }).execute()
 
            if assistant_content:
-               await asyncio.to_thread(
-                   lambda: sb.table("chat_archive").insert({
-                       "assistant_id": persona_name,
-                       "conversation_id": conversation_id,
-                       "role": "assistant",
-                       "content": assistant_content,
-                       "category": "archive",
-                   }).execute()
-               )
+               sb.table("chat_archive").insert({
+                   "assistant_id": persona_name,
+                   "conversation_id": conversation_id,
+                   "role": "assistant",
+                   "content": assistant_content,
+                   "category": "archive",
+               }).execute()
 
            _log("OrangeChat archive saved to chat_archive: " + persona_name)
 
-       except Exception as e:
-           _log("OrangeChat archive save failed: " + str(e))
+except Exception as e:
+    _log("OrangeChat archive save failed: " + str(e))
        
         # 2. 写入 Mem0（可选）
         mc = _get_mem0()
